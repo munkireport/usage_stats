@@ -1,0 +1,8 @@
+client_tabs:
+    usage_stats-tab:
+        view: usage_stats_tab
+        i18n: usage_stats.usage_stats
+listings:
+    usage_stats:
+        view: usage_stats_listing
+        i18n: usage_stats.usage_stats
