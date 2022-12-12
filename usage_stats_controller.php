@@ -33,11 +33,6 @@ class Usage_stats_controller extends Module_controller
     public function get_data($serial_number = '')
     {
         $obj = new View();
-
-        if (! $this->authorized()) {
-            $obj->view('json', array('msg' => 'Not authorized'));
-        }
-
         $usage = new Usage_stats_model($serial_number);
         $obj->view('json', array('msg' => $usage->rs));
     }

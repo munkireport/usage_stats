@@ -6,7 +6,7 @@ class Usage_stats_model extends \Model {
 
     function __construct($serial='')
 	{
-		parent::__construct('id', 'usage_stats'); //primary key, tablename
+		parent::__construct('id', 'usage_stats'); // Primary key, tablename
 		$this->rs['id'] = '';
 		$this->rs['serial_number'] = $serial; $this->rt['serial_number'] = 'VARCHAR(255) UNIQUE';
 		$this->rs['timestamp'] = 0; $this->rt['timestamp'] = 'BIGINT';
@@ -42,46 +42,6 @@ class Usage_stats_model extends \Model {
 		$this->rs['gpu_busy'] = 0.0;
 		$this->rs['kern_bootargs'] = "";
 
-		// Schema version, increment when creating a db migration
-		$this->schema_version = 0;
-
-		// Add indexes
-		$this->idx[] = array('timestamp');
-		$this->idx[] = array('backlight_max');
-		$this->idx[] = array('backlight_min');
-		$this->idx[] = array('backlight');
-		$this->idx[] = array('keyboard_backlight');
-		$this->idx[] = array('ibyte_rate');
-		$this->idx[] = array('ibytes');
-		$this->idx[] = array('ipacket_rate');
-		$this->idx[] = array('ipackets');
-		$this->idx[] = array('obyte_rate');
-		$this->idx[] = array('obytes');
-		$this->idx[] = array('opacket_rate');
-		$this->idx[] = array('opackets');
-		$this->idx[] = array('rbytes_per_s');
-		$this->idx[] = array('rops_per_s');
-		$this->idx[] = array('wbytes_per_s');
-		$this->idx[] = array('wops_per_s');
-		$this->idx[] = array('rbytes_diff');
-		$this->idx[] = array('rops_diff');
-		$this->idx[] = array('wbytes_diff');
-		$this->idx[] = array('wops_diff');
-		$this->idx[] = array('thermal_pressure');
-		$this->idx[] = array('package_watts');
-		$this->idx[] = array('package_joules');
-		$this->idx[] = array('freq_hz');
-		$this->idx[] = array('freq_ratio');
-		$this->idx[] = array('gpu_name');
-		$this->idx[] = array('gpu_freq_hz');
-		$this->idx[] = array('gpu_freq_mhz');
-		$this->idx[] = array('gpu_freq_ratio');
-		$this->idx[] = array('gpu_busy');
-		$this->idx[] = array('kern_bootargs');
-        
-		// Create table if it does not exist
-		//$this->create_table();
-
         if ($serial) {
             $this->retrieve_record($serial);
         }
@@ -100,7 +60,7 @@ class Usage_stats_model extends \Model {
 	 **/
 	function process($plist)
 	{
-		
+		// Check if we have data
 		if ( ! $plist){
 			throw new Exception("Error Processing Request: No property list found", 1);
 		}
