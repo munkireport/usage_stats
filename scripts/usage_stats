@@ -1,22 +1,37 @@
-#!/usr/local/munkireport/munkireport-python2
+#!/usr/local/munkireport/munkireport-python3
 # Script by Bochoven
 
 import os, sys, plistlib, subprocess, platform
 
 def get_usage_metrics():
-    cmd = ['/usr/bin/powermetrics', '--show-initial-usage', ' -s', 'network,disk', '-f', 'plist', '-n', '0']
+    cmd = ['/usr/bin/powermetrics', '--show-initial-usage', ' -s', "network,disk", '-f', 'plist', '-n', '0']
+
     proc = subprocess.Popen(cmd, shell=False, bufsize=-1,
                         stdin=subprocess.PIPE,
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = proc.communicate()
-    plist = plistlib.readPlistFromString(output.rstrip(' \t\r\n\0'))
+
+    # Need to remove a broken key "<key>all_tasks</key>" that Python doesn't like
+    output = output.decode().replace("<key>all_tasks</key>","")
+
+    try:
+        plist = plistlib.readPlistFromString(output.rstrip(' \t\r\n\0').strip())
+    except AttributeError as e:
+        try:
+            plist = plistlib.loads(output.rstrip(' \t\r\n\0').encode())
+        except:
+            plist = {}
 
     cmd = ['/usr/bin/powermetrics', '-s', 'cpu_power,gpu_power,thermal,battery', '-n', '1', '-f', 'plist']
     proc = subprocess.Popen(cmd, shell=False, bufsize=-1,
                         stdin=subprocess.PIPE,
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = proc.communicate()
-    plist.update(plistlib.readPlistFromString(output.rstrip(' \t\r\n\0')))
+
+    try:
+        plist.update(plistlib.readPlistFromString(output.rstrip(' \t\r\n\0')))
+    except AttributeError as e:
+        plist.update(plistlib.loads(output.decode().rstrip(' \t\r\n\0').encode()))
 
     return plist
 
@@ -165,10 +180,8 @@ def parse_usage_plist(plist):
 def getDarwinVersion():
     """Returns the Darwin version."""
     # Catalina -> 10.15.7 -> 19.6.0 -> 19
-    # os_version_tuple = platform.mac_ver()[0].split('.')
-    # return int(os_version_tuple[1])
     darwin_version_tuple = platform.release().split('.')
-    return int(darwin_version_tuple[0])
+    return int(darwin_version_tuple[0]) 
 
 def main():
     """Main"""
@@ -177,21 +190,20 @@ def main():
     if getDarwinVersion() < 14:
         result = dict()
         
-        # Write results to cache
-        cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
-        output_plist = os.path.join(cachedir, 'usage_stats.plist')
-        plistlib.writePlist(result, output_plist)
-
     else :
         # Get results
         result = dict()
         info = get_usage_metrics()
         result = parse_usage_plist(info)
 
-        # Write results to cache
-        cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
-        output_plist = os.path.join(cachedir, 'usage_stats.plist')
+    # Write results to cache
+    cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
+    output_plist = os.path.join(cachedir, 'usage_stats.plist')
+    try:
         plistlib.writePlist(result, output_plist)
+    except:
+        with open(output_plist, 'wb') as fp:
+            plistlib.dump(result, fp, fmt=plistlib.FMT_XML)
 
 if __name__ == "__main__":
     main()
