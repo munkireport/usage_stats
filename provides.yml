@@ -6,3 +6,6 @@ listings:
     usage_stats:
         view: usage_stats_listing
         i18n: usage_stats.usage_stats
+widgets:
+    usage_stats_thermal_pressure:
+        view: usage_stats_thermal_pressure_widget

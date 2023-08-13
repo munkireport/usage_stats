@@ -17,14 +17,37 @@ class Usage_stats_controller extends Module_controller
 	}
 
 	/**
-	 * Default method
-	 * @author AvB
-	 *
-	 **/
+	* Default method
+	* @author AvB
+	*
+	**/
 	function index()
 	{
 		echo "You've loaded the usage_stats module!";
 	}
+
+     /**
+     * Get data for scroll widget
+     *
+     * @return void
+     * @author tuxudo
+     **/
+    public function get_scroll_widget($column)
+    {
+        // Remove non-column name characters
+        $column = preg_replace("/[^A-Za-z0-9_\-]]/", '', $column);
+
+        $sql = "SELECT COUNT(CASE WHEN ".$column." <> '' AND ".$column." IS NOT NULL THEN 1 END) AS count, ".$column." 
+                FROM usage_stats
+                LEFT JOIN reportdata USING (serial_number)
+                ".get_machine_group_filter()."
+                AND ".$column." <> '' AND ".$column." IS NOT NULL 
+                GROUP BY ".$column."
+                ORDER BY count DESC";
+
+        $queryobj = new Usage_stats_model;
+        jsonView($queryobj->query($sql));
+    }
 
 	/**
      * Retrieve data in json format

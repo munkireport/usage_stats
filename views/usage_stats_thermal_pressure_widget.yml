@@ -1,0 +1,9 @@
+type: scrollbox
+widget_id: usage_state-thermal-pressure-widget
+api_url: /module/usage_stats/get_scroll_widget/thermal_pressure
+i18n_title: usage_stats.thermal_pressure
+icon: fa-thermometer-three-quarters
+listing_link: /show/listing/usage_stats/usage_stats
+search_key: thermal_pressure
+i18n_empty_result: no_data
+badge: count
