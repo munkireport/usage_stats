@@ -33,7 +33,7 @@ $(document).on('appReady', function(e, lang) {
                     boot_rows = boot_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td><span title=" '+moment((+d[prop])*1000).format('llll')+'">'+moment((+d[prop])*1000).fromNow()+'</span></td></tr>';
 
                 } else if (prop == 'keyboard_backlight'){
-                    backlight_rows = backlight_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+d[prop]+'</td></tr>';
+                    backlight_rows = backlight_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+d[prop]+'%</td></tr>';
                 } else if (prop == 'backlight'){
                     backlight_rows = backlight_rows + '<tr><th>'+i18n.t('usage_stats.lcd_backlight')+'</th><td>'+((d[prop]/d['backlight_max'])*100).toFixed(2)+'%</td></tr>';
 

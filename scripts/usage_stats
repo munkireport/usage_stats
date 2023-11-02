@@ -42,140 +42,196 @@ def parse_usage_plist(plist):
             try:
                 usage_info['timestamp'] = plist[item]
             except:
-                usage_info['error'] = '' 
+                pass
         elif item == 'thermal_pressure':
             try:
                 usage_info['thermal_pressure'] = plist[item]
             except:
-                usage_info['error'] = '' 
-        elif item == 'backlight':
+                pass
+        elif item == 'backlight': # Intel Macs
             try:
                 usage_info['backlight_max'] = plist[item]['max']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['backlight_min'] = plist[item]['min']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['backlight'] = plist[item]['value']
             except:
-                usage_info['error'] = '' 
-        elif item == 'keyboard_backlight':
+                pass
+        elif item == 'keyboard_backlight': # Intel Macs
             try:
                 usage_info['keyboard_backlight'] = plist[item]['value']
             except:
-                usage_info['error'] = '' 
+                pass
         elif item == 'network':
             try:
                 usage_info['ibyte_rate'] = plist[item]['ibyte_rate']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['ibytes'] = plist[item]['ibytes']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['ipacket_rate'] = plist[item]['ipacket_rate']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['ipackets'] = plist[item]['ipackets']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['obyte_rate'] = plist[item]['obyte_rate']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['obytes'] = plist[item]['obytes']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['opacket_rate'] = plist[item]['opacket_rate']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['opackets'] = plist[item]['opackets']
             except:
-                usage_info['error'] = '' 
+                pass
         elif item == 'disk':
             try:
                 usage_info['rbytes_per_s'] = plist[item]['rbytes_per_s']
             except:
-                usage_info['error'] = '' 
+                pass
             try: 
                 usage_info['rops_per_s'] = plist[item]['rops_per_s']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['wbytes_per_s'] = plist[item]['wbytes_per_s']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['wops_per_s'] = plist[item]['wops_per_s']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['rbytes_diff'] = plist[item]['rbytes_diff']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['rops_diff'] = plist[item]['rops_diff']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['wbytes_diff'] = plist[item]['wbytes_diff']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['wops_diff'] = plist[item]['wops_diff']
             except:
-                usage_info['error'] = '' 
+                pass
         elif item == 'processor':
             try:
                 usage_info['package_watts'] = plist[item]['package_watts']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['package_joules'] = plist[item]['package_joules']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['freq_hz'] = plist[item]['freq_hz']
             except:
-                usage_info['error'] = '' 
+                pass
             try:
                 usage_info['freq_ratio'] = plist[item]['freq_ratio']
             except:
-                usage_info['error'] = '' 
-        elif item == 'GPU':
+                pass
+        elif item == 'GPU': # Intel Macs
             try:
                 usage_info['gpu_name'] = plist[item][0]['name'].replace("IntelIG", "Intel iGPU")
             except:
-                usage_info['error'] = ''
+                pass
             try:
                 usage_info['gpu_freq_hz'] = plist[item][0]['freq_hz']
             except:
-                usage_info['error'] = ''
+                pass
             try:
                 usage_info['gpu_freq_mhz'] = plist[item][0]['freq_mhz']
             except:
-                usage_info['error'] = ''
+                pass
             try:
                 usage_info['gpu_freq_ratio'] = plist[item][0]['freq_ratio']
             except:
-                usage_info['error'] = ''
+                pass
             try:
                 usage_info['gpu_busy'] = plist[item][0]['misc_counters']['GPU Busy']
             except:
-                usage_info['error'] = ''
+                pass
+        elif item == 'gpu': # Apple Silicon Macs
+            try:
+                usage_info['gpu_freq_mhz'] = int(plist[item]['freq_hz']) # This value is in Mhz on AS
+            except:
+                pass
         elif item == 'kern_bootargs':
             try:
                 usage_info['kern_bootargs'] = plist[item]
             except:
-                usage_info['error'] = ''
+                pass
     return usage_info
+
+def get_as_backlight():
+    # Gets the backlight info for Apple Silicon Macs
+    cmd = ['/usr/libexec/corebrightnessdiag', 'status-info']
+    proc = subprocess.Popen(cmd, shell=False, bufsize=-1, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (output, unused_error) = proc.communicate()
+
+    # The output is sometimes split
+    if b"Unable to dump a property list." in output:
+      output=output.decode("utf-8", errors="ignore").split("Unable to dump a property list.")[0].encode()
+
+    try:
+        plist = plistlib.readPlistFromString(output)
+    except AttributeError as e:
+        plist = plistlib.loads(output)
+
+    result = {}
+
+    try:
+        # Because there can be multiple displays, we need to find the primary display
+        if plist["CBDisplayInfo"] and plist["CBDisplayInfo"][0] and plist["CBDisplayInfo"][0]["CBDisplayInfoDeviceID"]:
+            main_display=plist["CBDisplayInfo"][0]["CBDisplayInfoDeviceID"]
+
+            if plist["CBDisplays"]:
+                for display in plist["CBDisplays"]:
+                    # Look for the primary display by device ID
+                    if plist["CBDisplays"][display]["Display"] and plist["CBDisplays"][display]["Display"]["CBDisplayInfo"] and plist["CBDisplays"][display]["Display"]["CBDisplayInfo"]["CBDisplayInfoDeviceID"] and plist["CBDisplays"][display]["Display"]["CBDisplayInfo"]["CBDisplayInfoDeviceID"] == main_display:
+
+                        backlight_max = plist["CBDisplays"][display]["Display"]["BrightnessLimit"]
+                        backlight = int(plist["CBDisplays"][display]["Display"]["NitsPhysical"])
+
+                        result.update({'backlight_max': backlight_max})
+                        result.update({'backlight_min': "0"})
+                        result.update({'backlight': backlight})
+
+                        # We found the display we're looking for
+                        break
+    except:
+        pass
+
+    try:
+        if plist['CBKeyboards']:
+            for keyboard in plist['CBKeyboards']:
+                if plist['CBKeyboards'][keyboard]["CBKeyboardBacklightContainer"] and plist['CBKeyboards'][keyboard]["CBKeyboardBacklightContainer"] and (plist['CBKeyboards'][keyboard]["CBKeyboardBacklightContainer"]["KeyboardBacklightBrightness"] or plist['CBKeyboards'][keyboard]["CBKeyboardBacklightContainer"]["KeyboardBacklightBrightness"] == 0):
+                    
+                    keyboard_backlight = int(plist['CBKeyboards'][keyboard]["CBKeyboardBacklightContainer"]["KeyboardBacklightBrightness"] * 100)
+                    result.update({'keyboard_backlight': keyboard_backlight})
+    except:
+        pass
+
+    return result
 
 def getDarwinVersion():
     """Returns the Darwin version."""
@@ -195,6 +251,10 @@ def main():
         result = dict()
         info = get_usage_metrics()
         result = parse_usage_plist(info)
+
+        # Check if Apple Silicon Mac
+        if "arm" in os.uname()[3].lower():
+            result.update(get_as_backlight())
 
     # Write results to cache
     cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
