@@ -20,6 +20,7 @@ $(document).on('appReady', function(e, lang) {
             var processor_rows = '';
             var gpu_rows = '';
             var backlight_rows = '';
+            var cluster_rows = '';
 
             // Process each key in the JSON array
             for (var prop in d){
@@ -70,9 +71,29 @@ $(document).on('appReady', function(e, lang) {
                     processor_rows = processor_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+(d[prop]*1).toFixed(2)+' Joules</td></tr>';
                 } else if (prop == 'package_watts'){
                     processor_rows = processor_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+(d[prop]*1).toFixed(2)+' Watts</td></tr>';
+                
+                } else if (prop == 'clusters'){
+                    // Process clusters table into fancy table
+                    var clusters_data = JSON.parse(d[prop]);
+
+                    for (cluster_entry in clusters_data){
+                        if (cluster_entry.includes('_active')){
+
+                            cluster_active = clusters_data[cluster_entry]
+                            cluster_name = cluster_entry.split("_")[0].replace("Cluster", "Cluster ")
+                            cluster_mhz = clusters_data[cluster_entry.replace("_active", "_freq_Mhz")]
+
+                            // Mhz or Ghz
+                            if (cluster_mhz >= 1000){
+                                cluster_rows = cluster_rows + '<tr><th>'+cluster_name+'</th><td>'+(cluster_mhz/1000).toFixed(2)+'Ghz<br>'+cluster_active+'% '+i18n.t('usage_stats.average_load')+'</td></tr>';
+                            } else {
+                                cluster_rows = cluster_rows + '<tr><th>'+cluster_name+'</th><td>'+cluster_mhz+'Mhz<br>'+cluster_active+'% '+i18n.t('usage_stats.average_load')+'</td></tr>';
+                            }
+                        }
+                    }
                 }
             };
-            
+
             // Only show boot table if data exists
             if ( boot_rows !== ""){
                 $('#usage_stats-tab')
@@ -125,6 +146,20 @@ $(document).on('appReady', function(e, lang) {
                                 .append(processor_rows))));
             }
 
+            // Only show cluster table if data exists
+            if ( cluster_rows !== ""){
+                $('#usage_stats-tab')
+                    .append($('<h4>')
+                        .append($('<i>')
+                            .addClass('fa fa-cubes'))
+                        .append(' '+i18n.t('usage_stats.cluster_usage')))
+                    .append($('<div style="max-width:450px;">')
+                        .append($('<table>')
+                            .addClass('table table-striped table-condensed')
+                            .append($('<tbody>')
+                                .append(cluster_rows))));
+            }
+
             // Only show gpu table if data exists
             if ( gpu_rows !== ""){
                 $('#usage_stats-tab')
@@ -152,7 +187,6 @@ $(document).on('appReady', function(e, lang) {
                             .append($('<tbody>')
                                 .append(backlight_rows))));
             }
-
         }
     });
 });

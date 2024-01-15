@@ -1,49 +1,49 @@
 <?php $this->view('partials/head'); ?>
 
 <div class="container">
-  <div class="row">
-      <div class="col-lg-12">
-    <h3><span data-i18n="usage_stats.usage_stats_report"></span> <span id="total-count" class='label label-primary'>…</span></h3>
-          <table class="table table-striped table-condensed table-bordered">
+    <div class="row">
+        <div class="col-lg-12">
+            <h3><span data-i18n="usage_stats.usage_stats_report"></span> <span id="total-count" class='label label-primary'>…</span></h3>
+            <table class="table table-striped table-condensed table-bordered">
             <thead>
-              <tr>
-                  <th data-i18n="listing.computername" data-colname='machine.computer_name'></th>
-                <th data-i18n="serial" data-colname='reportdata.serial_number'></th>
-                <th data-i18n="username" data-colname='reportdata.long_username'></th>
-                <th data-i18n="usage_stats.thermal_pressure" data-colname='usage_stats.thermal_pressure'></th>
-                <th data-i18n="usage_stats.ibyte_rate_short" data-colname='usage_stats.ibyte_rate'></th>
-                <th data-i18n="usage_stats.ibytes" data-colname='usage_stats.ibytes'></th>
-                <th data-i18n="usage_stats.ipacket_rate_short" data-colname='usage_stats.ipacket_rate'></th>
-                <th data-i18n="usage_stats.ipackets" data-colname='usage_stats.ipackets'></th>
-                <th data-i18n="usage_stats.obyte_rate_short" data-colname='usage_stats.obyte_rate'></th>
-                <th data-i18n="usage_stats.obytes" data-colname='usage_stats.obytes'></th>
-                <th data-i18n="usage_stats.opacket_rate_short" data-colname='usage_stats.opacket_rate'></th>
-                <th data-i18n="usage_stats.opackets" data-colname='usage_stats.opackets'></th>
-                <th data-i18n="usage_stats.rbytes_per_s_short" data-colname='usage_stats.rbytes_per_s'></th>
-                <th data-i18n="usage_stats.rbytes_diff" data-colname='usage_stats.rbytes_diff'></th>
-                <th data-i18n="usage_stats.rops_per_s_short" data-colname='usage_stats.rops_per_s'></th>
-                <th data-i18n="usage_stats.rops_diff" data-colname='usage_stats.rops_diff'></th>
-                <th data-i18n="usage_stats.wbytes_per_s_short" data-colname='usage_stats.wbytes_per_s'></th>
-                <th data-i18n="usage_stats.wbytes_diff" data-colname='usage_stats.wbytes_diff'></th>
-                <th data-i18n="usage_stats.wops_per_s_short" data-colname='usage_stats.wops_per_s'></th>
-                <th data-i18n="usage_stats.wops_diff" data-colname='usage_stats.wops_diff'></th>
-                <th data-i18n="usage_stats.package_watts" data-colname='usage_stats.package_watts'></th>
-                <th data-i18n="usage_stats.freq_hz_short" data-colname='usage_stats.freq_hz'></th>
-                <th data-i18n="usage_stats.freq_ratio" data-colname='usage_stats.freq_ratio'></th>
-                <th data-i18n="usage_stats.gpu_freq_hz_short" data-colname='usage_stats.gpu_freq_hz'></th>
-                <th data-i18n="usage_stats.gpu_freq_ratio" data-colname='usage_stats.gpu_freq_ratio'></th>
-                <th data-i18n="usage_stats.gpu_busy" data-colname='usage_stats.gpu_busy'></th>
-                <th data-i18n="usage_stats.kern_bootargs" data-colname='usage_stats.kern_bootargs'></th>
-              </tr>
-            </thead>
-            <tbody>
                 <tr>
-                    <td data-i18n="listing.loading" colspan="28" class="dataTables_empty"></td>
+                    <th data-i18n="listing.computername" data-colname='machine.computer_name'></th>
+                    <th data-i18n="serial" data-colname='reportdata.serial_number'></th>
+                    <th data-i18n="username" data-colname='reportdata.long_username'></th>
+                    <th data-i18n="usage_stats.thermal_pressure" data-colname='usage_stats.thermal_pressure'></th>
+                    <th data-i18n="usage_stats.ibyte_rate_short" data-colname='usage_stats.ibyte_rate'></th>
+                    <th data-i18n="usage_stats.ibytes" data-colname='usage_stats.ibytes'></th>
+                    <th data-i18n="usage_stats.ipacket_rate_short" data-colname='usage_stats.ipacket_rate'></th>
+                    <th data-i18n="usage_stats.ipackets" data-colname='usage_stats.ipackets'></th>
+                    <th data-i18n="usage_stats.obyte_rate_short" data-colname='usage_stats.obyte_rate'></th>
+                    <th data-i18n="usage_stats.obytes" data-colname='usage_stats.obytes'></th>
+                    <th data-i18n="usage_stats.opacket_rate_short" data-colname='usage_stats.opacket_rate'></th>
+                    <th data-i18n="usage_stats.opackets" data-colname='usage_stats.opackets'></th>
+                    <th data-i18n="usage_stats.rbytes_per_s_short" data-colname='usage_stats.rbytes_per_s'></th>
+                    <th data-i18n="usage_stats.rbytes_diff" data-colname='usage_stats.rbytes_diff'></th>
+                    <th data-i18n="usage_stats.rops_per_s_short" data-colname='usage_stats.rops_per_s'></th>
+                    <th data-i18n="usage_stats.rops_diff" data-colname='usage_stats.rops_diff'></th>
+                    <th data-i18n="usage_stats.wbytes_per_s_short" data-colname='usage_stats.wbytes_per_s'></th>
+                    <th data-i18n="usage_stats.wbytes_diff" data-colname='usage_stats.wbytes_diff'></th>
+                    <th data-i18n="usage_stats.wops_per_s_short" data-colname='usage_stats.wops_per_s'></th>
+                    <th data-i18n="usage_stats.wops_diff" data-colname='usage_stats.wops_diff'></th>
+                    <th data-i18n="usage_stats.package_watts" data-colname='usage_stats.package_watts'></th>
+                    <th data-i18n="usage_stats.freq_hz_short" data-colname='usage_stats.freq_hz'></th>
+                    <th data-i18n="usage_stats.freq_ratio" data-colname='usage_stats.freq_ratio'></th>
+                    <th data-i18n="usage_stats.gpu_freq_hz_short" data-colname='usage_stats.gpu_freq_hz'></th>
+                    <th data-i18n="usage_stats.gpu_freq_ratio" data-colname='usage_stats.gpu_freq_ratio'></th>
+                    <th data-i18n="usage_stats.gpu_busy" data-colname='usage_stats.gpu_busy'></th>
+                    <th data-i18n="usage_stats.kern_bootargs" data-colname='usage_stats.kern_bootargs'></th>
                 </tr>
-            </tbody>
-          </table>
-    </div> <!-- /span 13 -->
-  </div> <!-- /row -->
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-i18n="listing.loading" colspan="27" class="dataTables_empty"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div> <!-- /span 13 -->
+    </div> <!-- /row -->
 </div>  <!-- /container -->
 
 <script type="text/javascript">

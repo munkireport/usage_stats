@@ -9,22 +9,22 @@
 class Usage_stats_controller extends Module_controller
 {
 
-	/*** Protect methods with auth! ****/
-	function __construct()
-	{
-		// Store module path
-		$this->module_path = dirname(__FILE__);
-	}
+    /*** Protect methods with auth! ****/
+    function __construct()
+    {
+        // Store module path
+        $this->module_path = dirname(__FILE__);
+    }
 
-	/**
-	* Default method
-	* @author AvB
-	*
-	**/
-	function index()
-	{
-		echo "You've loaded the usage_stats module!";
-	}
+    /**
+    * Default method
+    * @author AvB
+    *
+    **/
+    function index()
+    {
+        echo "You've loaded the usage_stats module!";
+    }
 
      /**
      * Get data for scroll widget
@@ -49,7 +49,7 @@ class Usage_stats_controller extends Module_controller
         jsonView($queryobj->query($sql));
     }
 
-	/**
+    /**
      * Retrieve data in json format
      *
      **/

@@ -34,6 +34,8 @@
     "wops_per_s_short": "Write Operations",
     "wops_diff": "Total Write Operations",
     "processor_usage": "Processor Usage",
+    "cluster_usage": "CPU Cluster Usage",
+    "average_load": "Average Load",
     "package_watts": "CPU Package Watts",
     "package_joules": "CPU Package Joules",
     "freq_hz": "Current CPU Frequency",

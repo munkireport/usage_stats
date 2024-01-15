@@ -1,7 +1,7 @@
 #!/usr/local/munkireport/munkireport-python3
-# Script by Bochoven
+# Script by Bochoven and Tuxudo
 
-import os, sys, plistlib, subprocess, platform
+import os, sys, plistlib, subprocess, platform, json
 
 def get_usage_metrics():
     cmd = ['/usr/bin/powermetrics', '--show-initial-usage', ' -s', "network,disk", '-f', 'plist', '-n', '0']
@@ -133,8 +133,24 @@ def parse_usage_plist(plist):
             except:
                 pass
         elif item == 'processor':
-            try:
+            try: # Intel Macs
                 usage_info['package_watts'] = plist[item]['package_watts']
+            except:
+                pass
+            try: # Apple Silicon Macs
+                usage_info['package_watts'] = (plist[item]['combined_power']/1000)
+            except:
+                pass
+            try: # Apple Silicon Macs
+                usage_info['cpu_watts'] = (plist[item]['cpu_energy']/1000)
+            except:
+                pass
+            try: # Apple Silicon Macs
+                usage_info['gpu_watts'] = (plist[item]['gpu_energy']/1000)
+            except:
+                pass
+            try: # Apple Silicon Macs
+                usage_info['clusters'] = json.dumps(process_clusters(plist[item]['clusters']))
             except:
                 pass
             try:
@@ -172,7 +188,9 @@ def parse_usage_plist(plist):
                 pass
         elif item == 'gpu': # Apple Silicon Macs
             try:
+                usage_info['gpu_freq_hz'] = int(plist[item]['freq_hz']*1000000) # This value is in Mhz on AS
                 usage_info['gpu_freq_mhz'] = int(plist[item]['freq_hz']) # This value is in Mhz on AS
+                usage_info['gpu_busy'] = (1-plist[item]['idle_ratio'])
             except:
                 pass
         elif item == 'kern_bootargs':
@@ -233,6 +251,53 @@ def get_as_backlight():
 
     return result
 
+def process_clusters(cpu_clusters):
+    # Lovely lifted from https://github.com/tlkh/asitop
+
+    e_core = []
+    p_core = []
+    cpu_metric_dict = {}
+
+    for cluster in cpu_clusters:
+        name = cluster["name"]
+        # cpu_metric_dict[name+"_freq_Mhz"] = int(cluster["freq_hz"]/(1e6))
+        # cpu_metric_dict[name+"_active"] = int((1 - cluster["idle_ratio"])*100)
+        for cpu in cluster["cpus"]:
+            name = 'E-Cluster' if name[0] == 'E' else 'P-Cluster'
+            core = e_core if name[0] == 'E' else p_core
+            core.append(cpu["cpu"])
+            cpu_metric_dict[name + str(cpu["cpu"]) + "_freq_Mhz"] = int(cpu["freq_hz"] / (1e6))
+            cpu_metric_dict[name + str(cpu["cpu"]) + "_active"] = int((1 - cpu["idle_ratio"]) * 100)
+    
+    # cpu_metric_dict["e_core"] = e_core
+    # cpu_metric_dict["p_core"] = p_core
+    # if "E-Cluster_active" not in cpu_metric_dict:
+    #     # M1 Ultra
+    #     cpu_metric_dict["E-Cluster_active"] = int((cpu_metric_dict["E0-Cluster_active"] + cpu_metric_dict["E1-Cluster_active"])/2)
+    # if "E-Cluster_freq_Mhz" not in cpu_metric_dict:
+    #     # M1 Ultra
+    #     cpu_metric_dict["E-Cluster_freq_Mhz"] = max(cpu_metric_dict["E0-Cluster_freq_Mhz"], cpu_metric_dict["E1-Cluster_freq_Mhz"])
+    # if "P-Cluster_active" not in cpu_metric_dict:
+    #     if "P2-Cluster_active" in cpu_metric_dict:
+    #         # M1 Ultra
+    #         cpu_metric_dict["P-Cluster_active"] = int((cpu_metric_dict["P0-Cluster_active"] + cpu_metric_dict["P1-Cluster_active"] +
+    #                                                   cpu_metric_dict["P2-Cluster_active"] + cpu_metric_dict["P3-Cluster_active"]) / 4)
+    #     else:
+    #         cpu_metric_dict["P-Cluster_active"] = int((cpu_metric_dict["P0-Cluster_active"] + cpu_metric_dict["P1-Cluster_active"])/2)
+    # if "P-Cluster_freq_Mhz" not in cpu_metric_dict:
+    #     if "P2-Cluster_freq_Mhz" in cpu_metric_dict:
+    #         # M1 Ultra
+    #         freqs = [
+    #             cpu_metric_dict["P0-Cluster_freq_Mhz"],
+    #             cpu_metric_dict["P1-Cluster_freq_Mhz"],
+    #             cpu_metric_dict["P2-Cluster_freq_Mhz"],
+    #             cpu_metric_dict["P3-Cluster_freq_Mhz"]]
+    #         cpu_metric_dict["P-Cluster_freq_Mhz"] = max(freqs)
+    #     else:
+    #         cpu_metric_dict["P-Cluster_freq_Mhz"] = max(cpu_metric_dict["P0-Cluster_freq_Mhz"], cpu_metric_dict["P1-Cluster_freq_Mhz"])
+
+    return cpu_metric_dict
+
 def getDarwinVersion():
     """Returns the Darwin version."""
     # Catalina -> 10.15.7 -> 19.6.0 -> 19
@@ -245,7 +310,7 @@ def main():
     # If less than macOS 10.10 (Darwin) 14, skip and write empty file
     if getDarwinVersion() < 14:
         result = dict()
-        
+
     else :
         # Get results
         result = dict()

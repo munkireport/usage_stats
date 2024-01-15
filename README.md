@@ -5,7 +5,8 @@ Presents information about network, disk, CPU, and GPU activity
 
 This module is only supported on 10.10 and higher
 
-Database:
+Table Schema
+---
 * timestamp - BIGINT - timestamp of when stats were last pulled
 * thermal_pressure - varchar(255) - String detailing thermal pressure of the system
 * backlight_max - INT(11) - Maximum value of backlight
@@ -37,5 +38,6 @@ Database:
 * gpu_freq_mhz - FLOAT - GPU Speed in megahertz
 * gpu_freq_ratio - FLOAT - GPU Fraction of Nominal Speed
 * gpu_busy - FLOAT - GPU cycles used
-* kern_bootargs - VARCHAT(255) - boot flags used by the kernel on last boot
+* kern_bootargs - VARCHAT(255) - Boot flags used by the kernel on last boot
+* clusters - mediumtext - JSON of CPU cluster activity, Apple Silicon only
 
