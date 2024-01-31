@@ -42,6 +42,11 @@ class Usage_stats_model extends \Model {
         $this->rs['gpu_busy'] = 0.0;
         $this->rs['kern_bootargs'] = "";
         $this->rs['clusters'] = null;
+        $this->rs['processes'] = null;
+        $this->rs['cpu_idle'] = null;
+        $this->rs['cpu_sys'] = null;
+        $this->rs['cpu_user'] = null;
+        $this->rs['load_avg'] = null;
 
         if ($serial) {
             $this->retrieve_record($serial);
@@ -69,8 +74,8 @@ class Usage_stats_model extends \Model {
         $parser = new CFPropertyList();
         $parser->parse($plist, CFPropertyList::FORMAT_XML);
         $plist = $parser->toArray();
-        
-        $fields = array('timestamp','thermal_pressure','backlight_max','backlight_min','backlight','keyboard_backlight','ibyte_rate','ibytes','ipacket_rate','ipackets','obyte_rate','obytes','opacket_rate','opackets','rbytes_per_s','rops_per_s','wbytes_per_s','wops_per_s','rbytes_diff','rops_diff','wbytes_diff','wops_diff','package_watts','package_joules','freq_hz','freq_ratio','gpu_name','gpu_freq_hz','gpu_freq_mhz','gpu_freq_ratio','gpu_busy','kern_bootargs','clusters');
+
+        $fields = array('timestamp','thermal_pressure','backlight_max','backlight_min','backlight','keyboard_backlight','ibyte_rate','ibytes','ipacket_rate','ipackets','obyte_rate','obytes','opacket_rate','opackets','rbytes_per_s','rops_per_s','wbytes_per_s','wops_per_s','rbytes_diff','rops_diff','wbytes_diff','wops_diff','package_watts','package_joules','freq_hz','freq_ratio','gpu_name','gpu_freq_hz','gpu_freq_mhz','gpu_freq_ratio','gpu_busy','kern_bootargs','clusters','processes','cpu_idle','cpu_sys','cpu_user','load_avg');
 
         foreach ($fields as $field) {
             // If key does not exist in $plist, null it

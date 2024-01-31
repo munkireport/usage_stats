@@ -14,6 +14,9 @@ $(document).on('appReady', function(e, lang) {
             $('#usage_stats-msg').text('');
             $('#usage_stats-view').removeClass('hide');
 
+            // Update the tab badge count
+            $('#usage_stats_processes-cnt').text("");
+
             var boot_rows = '';
             var network_rows = '';
             var disk_rows = '';
@@ -21,11 +24,12 @@ $(document).on('appReady', function(e, lang) {
             var gpu_rows = '';
             var backlight_rows = '';
             var cluster_rows = '';
+            var processes_data = '';
 
             // Process each key in the JSON array
             for (var prop in d){
                 // Do nothing for nulls to blank them
-                if (d[prop] !== 0 && d[prop] == '' || d[prop] == null){
+                if ((d[prop] == '' || d[prop] == null || d[prop] == "none" || prop == '') && d[prop] != 0){
                     boot_rows = boot_rows
 
                 } else if (prop == 'thermal_pressure' || prop == 'kern_bootargs'){
@@ -71,7 +75,16 @@ $(document).on('appReady', function(e, lang) {
                     processor_rows = processor_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+(d[prop]*1).toFixed(2)+' Joules</td></tr>';
                 } else if (prop == 'package_watts'){
                     processor_rows = processor_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+(d[prop]*1).toFixed(2)+' Watts</td></tr>';
-                
+                } else if (prop == 'cpu_sys' || prop == 'cpu_user' || prop == 'load_avg'){
+                    processor_rows = processor_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+d[prop]+'</td></tr>';
+                } else if (prop == 'cpu_idle'){
+                    processor_rows = processor_rows + '<tr><th>'+i18n.t('usage_stats.'+prop)+'</th><td>'+d[prop]+'</td></tr>';
+                    // Update the tab badge count
+                    $('#usage_stats_processes-cnt').text((100-parseInt(d[prop])+"%"));
+
+                } else if (prop == 'processes'){
+                    processes_data = d[prop];
+
                 } else if (prop == 'clusters'){
                     // Process clusters table into fancy table
                     var clusters_data = JSON.parse(d[prop]);
@@ -186,6 +199,46 @@ $(document).on('appReady', function(e, lang) {
                             .addClass('table table-striped table-condensed')
                             .append($('<tbody>')
                                 .append(backlight_rows))));
+            }
+
+            // Only show and sort processes table if data exists
+            if ( processes_data !== ""){
+
+                // Hide
+                $('#processes-msg').text('');
+                $('#processes-view').removeClass('hide');
+
+                $('#processes-tab')
+                    .append('<div id="processes-table-view" class="row" style="padding-left: 15px; padding-right: 15px;"><h4>'+i18n.t('usage_stats.processes')+'</h4><table class="table table-striped table-condensed table-bordered" id="processes-table"><thead><tr><th data-colname="usage_stats.pid">'+i18n.t('usage_stats.pid')+'</th><th data-colname="usage_stats.proc">'+i18n.t('usage_stats.proc')+'</th><th data-colname="usage_stats.usr">'+i18n.t('usage_stats.usr')+'</th><th data-colname="usage_stats.cpu">'+i18n.t('usage_stats.cpu')+'</th><th data-colname="usage_stats.memp">'+i18n.t('usage_stats.memp')+'</th><th data-colname="usage_stats.mem">'+i18n.t('usage_stats.mem')+'</th><th data-colname="usage_stats.path">'+i18n.t('usage_stats.path')+'</th></tr></thead><tbody><tr><td data-i18n="listing.loading" colspan="7" class="dataTables_empty"></td></tr></tbody></table></div>')
+
+                    // Process rules json for processing in the fancy table
+                    var table_data = JSON.parse(processes_data);
+
+                    $('#processes-table').DataTable({
+
+                        data: table_data,
+                        order: [[3,'asc']],
+                        autoWidth: false,
+                        columns: [
+                            { data: 'pid' },
+                            { data: 'proc' },
+                            { data: 'usr' },
+                            { data: 'cpu' },
+                            { data: 'memp' },
+                            { data: 'mem' },
+                            { data: 'path' }
+                        ],
+                        createdRow: function( nRow, aData, iDataIndex ) {
+
+                            var colvar=$('td:eq(3)', nRow).html();
+                            $('td:eq(3)', nRow).text(colvar+"%")
+
+                            var colvar=$('td:eq(4)', nRow).html();
+                            $('td:eq(4)', nRow).text(colvar+"%")
+                        }
+                });
+            } else {
+                $('#processes-msg').text(i18n.t('no_data'));
             }
         }
     });

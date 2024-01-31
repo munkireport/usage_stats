@@ -40,4 +40,9 @@ Table Schema
 * gpu_busy - FLOAT - GPU cycles used
 * kern_bootargs - VARCHAT(255) - Boot flags used by the kernel on last boot
 * clusters - mediumtext - JSON of CPU cluster activity, Apple Silicon only
+* processes - mediumtext - JSON of processes running on the Mac
+* cpu_idle - varchar(255) - CPU idle percent
+* cpu_sys - varchar(255) - CPU used by system
+* cpu_user - varchar(255) - CPU used by user
+* load_avg - varchar(255) - Load average
 

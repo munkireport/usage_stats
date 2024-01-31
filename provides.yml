@@ -1,4 +1,8 @@
 client_tabs:
+    processes-tab:
+        view: processes_tab
+        i18n: usage_stats.processes
+        badge: usage_stats_processes-cnt
     usage_stats-tab:
         view: usage_stats_tab
         i18n: usage_stats.usage_stats

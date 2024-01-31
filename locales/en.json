@@ -48,5 +48,17 @@
     "gpu_freq_ratio": "GPU Fraction of Nominal Speed",
     "gpu_busy": "GPU Used",
     "per_second": "per Second",
-    "per_second_short": "/s"
+    "per_second_short": "/s",
+    "processes": "Processes",
+    "cpu_idle": "CPU Idle",
+    "cpu_sys": "CPU System",
+    "cpu_user": "CPU User",
+    "load_avg": "Load Average",
+    "pid": "PID",
+    "cpu": "CPU Usage",
+    "memp": "Memory Usage",
+    "usr": "User",
+    "mem": "Memory Amount",
+    "proc": "Process",
+    "path": "Process Path"
 }

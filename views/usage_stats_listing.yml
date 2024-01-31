@@ -1,0 +1,39 @@
+i18n_title: usage_stats.usage_stats_report
+js_link: module/usage_stats/js/usage_stats
+not_null_column: usage_stats.thermal_pressure
+table:
+  - column: machine.computer_name
+    i18n_header: listing.computername
+    formatter: clientDetail
+    tab_link: usage_stats-tab
+  - column: reportdata.serial_number
+    i18n_header: serial
+  - {i18n_header: username, column: reportdata.long_username}
+  - {i18n_header: usage_stats.thermal_pressure, column: usage_stats.thermal_pressure, formatter: format_usage_stats_thermal_pressure}
+  - {i18n_header: usage_stats.ibyte_rate_short, column: usage_stats.ibyte_rate, formatter: format_usage_stats_byte_rate}
+  - {i18n_header: usage_stats.ibytes, column: usage_stats.ibytes, formatter: format_usage_stats_byte_size}
+  - {i18n_header: usage_stats.ipacket_rate_short, column: usage_stats.ipacket_rate, formatter: format_usage_stats_rate}
+  - {i18n_header: usage_stats.ipackets, column: usage_stats.ipackets}
+  - {i18n_header: usage_stats.obyte_rate_short, column: usage_stats.obyte_rate, formatter: format_usage_stats_byte_rate}
+  - {i18n_header: usage_stats.obytes, column: usage_stats.obytes, formatter: format_usage_stats_byte_size}
+  - {i18n_header: usage_stats.opacket_rate_short, column: usage_stats.opacket_rate, formatter: format_usage_stats_rate}
+  - {i18n_header: usage_stats.opackets, column: usage_stats.opackets}
+  - {i18n_header: usage_stats.rbytes_per_s_short, column: usage_stats.rbytes_per_s, formatter: format_usage_stats_byte_rate}
+  - {i18n_header: usage_stats.rbytes_diff, column: usage_stats.rbytes_diff, formatter: format_usage_stats_byte_size}
+  - {i18n_header: usage_stats.rops_per_s_short, column: usage_stats.rops_per_s, formatter: format_usage_stats_rate}
+  - {i18n_header: usage_stats.rops_diff, column: usage_stats.rops_diff}
+  - {i18n_header: usage_stats.wbytes_per_s_short, column: usage_stats.wbytes_per_s, formatter: format_usage_stats_byte_rate}
+  - {i18n_header: usage_stats.wbytes_diff, column: usage_stats.wbytes_diff, formatter: format_usage_stats_byte_size}
+  - {i18n_header: usage_stats.wops_per_s_short, column: usage_stats.wops_per_s, formatter: format_usage_stats_rate}
+  - {i18n_header: usage_stats.wops_diff, column: usage_stats.wops_diff}
+  - {i18n_header: usage_stats.package_watts, column: usage_stats.package_watts, formatter: format_usage_stats_watts}
+  - {i18n_header: usage_stats.freq_hz_short, column: usage_stats.freq_hz, formatter: format_usage_stats_ghz}
+  - {i18n_header: usage_stats.freq_ratio, column: usage_stats.freq_ratio, formatter: format_usage_stats_ratio}
+  - {i18n_header: usage_stats.gpu_freq_hz_short, column: usage_stats.gpu_freq_hz, formatter: format_usage_stats_mhz}
+  - {i18n_header: usage_stats.gpu_freq_ratio, column: usage_stats.gpu_freq_ratio, formatter: format_usage_stats_ratio}
+  - {i18n_header: usage_stats.gpu_busy, column: usage_stats.gpu_busy, formatter: format_usage_stats_ratio}
+  - {i18n_header: usage_stats.cpu_idle, column: usage_stats.cpu_idle}
+  - {i18n_header: usage_stats.cpu_sys, column: usage_stats.cpu_sys}
+  - {i18n_header: usage_stats.cpu_user, column: usage_stats.cpu_user}
+  - {i18n_header: usage_stats.load_avg, column: usage_stats.load_avg}
+  - {i18n_header: usage_stats.kern_bootargs, column: usage_stats.kern_bootargs}
