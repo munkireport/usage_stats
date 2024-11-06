@@ -12,13 +12,21 @@ def get_usage_metrics():
     output, err = proc.communicate()
 
     # Need to remove a broken key "<key>all_tasks</key>" that Python doesn't like
-    output = output.decode().replace("<key>all_tasks</key>","").replace("&","and")
+    output = output.decode().replace("&","and")
+
+    # Manually build out the plist because the command spews garbage
+    plist_build = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>'
+    for idx, line in enumerate(output.split("\n")):
+        if "opackets" in line or "opacket_rate" in line or "ipackets" in line or "ipacket_rate" in line or "obytes" in line or "obyte_rate" in line or "ibytes" in line or "ibyte_rate" in line or "rops_diff" in line or "rops_per_s" in line or "wops_diff" in line or "wops_per_s" in line or "rbytes_diff" in line or "rbytes_per_s" in line or "wbytes_diff" in line or "wbytes_per_s" in line:
+            plist_build = plist_build + line
+
+    plist_build = plist_build + '</dict></plist>'
 
     try:
-        plist = plistlib.readPlistFromString(output.rstrip(' \t\r\n\0').strip())
+        plist = plistlib.readPlistFromString(plist_build)
     except AttributeError as e:
         try:
-            plist = plistlib.loads(output.rstrip(' \t\r\n\0').encode())
+            plist = plistlib.loads(plist_build.encode())
         except:
             plist = {}
 
@@ -67,72 +75,41 @@ def parse_usage_plist(plist):
                 usage_info['keyboard_backlight'] = plist[item]['value']
             except:
                 pass
-        elif item == 'network':
-            try:
-                usage_info['ibyte_rate'] = plist[item]['ibyte_rate']
-            except:
-                pass
-            try:
-                usage_info['ibytes'] = plist[item]['ibytes']
-            except:
-                pass
-            try:
-                usage_info['ipacket_rate'] = plist[item]['ipacket_rate']
-            except:
-                pass
-            try:
-                usage_info['ipackets'] = plist[item]['ipackets']
-            except:
-                pass
-            try:
-                usage_info['obyte_rate'] = plist[item]['obyte_rate']
-            except:
-                pass
-            try:
-                usage_info['obytes'] = plist[item]['obytes']
-            except:
-                pass
-            try:
-                usage_info['opacket_rate'] = plist[item]['opacket_rate']
-            except:
-                pass
-            try:
-                usage_info['opackets'] = plist[item]['opackets']
-            except:
-                pass
-        elif item == 'disk':
-            try:
-                usage_info['rbytes_per_s'] = plist[item]['rbytes_per_s']
-            except:
-                pass
-            try: 
-                usage_info['rops_per_s'] = plist[item]['rops_per_s']
-            except:
-                pass
-            try:
-                usage_info['wbytes_per_s'] = plist[item]['wbytes_per_s']
-            except:
-                pass
-            try:
-                usage_info['wops_per_s'] = plist[item]['wops_per_s']
-            except:
-                pass
-            try:
-                usage_info['rbytes_diff'] = plist[item]['rbytes_diff']
-            except:
-                pass
-            try:
-                usage_info['rops_diff'] = plist[item]['rops_diff']
-            except:
-                pass
-            try:
-                usage_info['wbytes_diff'] = plist[item]['wbytes_diff']
-            except:
-                pass
-            try:
-                usage_info['wops_diff'] = plist[item]['wops_diff']
-            except:
-                pass
+
+        elif item == 'ibyte_rate':
+            usage_info['ibyte_rate'] = plist[item]
+        elif item == 'ibytes':
+            usage_info['ibytes'] = plist[item]
+        elif item == 'ipacket_rate':
+            usage_info['ipacket_rate'] = plist[item]
+        elif item == 'ipackets':
+            usage_info['ipackets'] = plist[item]
+        elif item == 'obyte_rate':
+            usage_info['obyte_rate'] = plist[item]
+        elif item == 'obytes':
+            usage_info['obytes'] = plist[item]
+        elif item == 'opacket_rate':
+            usage_info['opacket_rate'] = plist[item]
+        elif item == 'opackets':
+            usage_info['opackets'] = plist[item]
+
+        elif item == 'rbytes_per_s':
+            usage_info['rbytes_per_s'] = plist[item]
+        elif item == 'rops_per_s':
+            usage_info['rops_per_s'] = plist[item]
+        elif item == 'wbytes_per_s':
+            usage_info['wbytes_per_s'] = plist[item]
+        elif item == 'wops_per_s':
+            usage_info['wops_per_s'] = plist[item]
+        elif item == 'rbytes_diff':
+            usage_info['rbytes_diff'] = plist[item]
+        elif item == 'rops_diff':
+            usage_info['rops_diff'] = plist[item]
+        elif item == 'wbytes_diff':
+            usage_info['wbytes_diff'] = plist[item]
+        elif item == 'wops_diff':
+            usage_info['wops_diff'] = plist[item]
+
         elif item == 'processor':
             try: # Intel Macs
                 usage_info['package_watts'] = plist[item]['package_watts']
