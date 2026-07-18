@@ -1,9 +1,27 @@
-type: scrollbox
+type: button
 widget_id: usage_state-thermal-pressure-widget
-api_url: /module/usage_stats/get_scroll_widget/thermal_pressure
+api_url: /module/usage_stats/get_thermal_pressure_stats
 i18n_title: usage_stats.thermal_pressure
-icon: fa-thermometer-three-quarters
 listing_link: /show/listing/usage_stats/usage_stats
-search_key: thermal_pressure
-i18n_empty_result: no_data
-badge: count
+icon: fa-thermometer-three-quarters
+i18nEmptyResult: no_data
+buttons:
+  - label: Nominal
+    class: btn-success
+    search_component: Nominal
+    hide_when_zero: true
+  - label: Moderate
+    class: btn-info
+    search_component: Moderate
+    hide_when_zero: true
+  - label: Heavy
+    class: btn-warning
+    search_component: Heavy
+    hide_when_zero: true
+  - label: Critical
+    class: btn-danger
+    search_component: Critical
+    hide_when_zero: true
+  - label: Unknown
+    class: btn-default
+    hide_when_zero: true

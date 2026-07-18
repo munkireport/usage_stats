@@ -50,6 +50,36 @@ class Usage_stats_controller extends Module_controller
     }
 
     /**
+     * Get Thermal Pressure counts for button widget
+     *
+     * Returns JSON in the form:
+     * [{ "label": "Nominal", "count": 123 }, ...]
+     *
+     * @return void
+     **/
+    public function get_thermal_pressure_stats()
+    {
+        $sql = "SELECT
+                    COUNT(*) AS count,
+                    CASE
+                        WHEN LOWER(thermal_pressure) = 'nominal' THEN 'Nominal'
+                        WHEN LOWER(thermal_pressure) = 'moderate' THEN 'Moderate'
+                        WHEN LOWER(thermal_pressure) = 'heavy' THEN 'Heavy'
+                        WHEN LOWER(thermal_pressure) = 'critical' THEN 'Critical'
+                        ELSE 'Unknown'
+                    END AS label
+                FROM usage_stats
+                LEFT JOIN reportdata USING (serial_number)
+                ".get_machine_group_filter()."
+                AND thermal_pressure <> '' AND thermal_pressure IS NOT NULL
+                GROUP BY label
+                ORDER BY count DESC";
+
+        $queryobj = new Usage_stats_model;
+        jsonView($queryobj->query($sql));
+    }
+
+    /**
      * Retrieve data in json format
      *
      **/

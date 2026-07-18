@@ -2,6 +2,7 @@
     "usage_stats": "Usage Stats",
     "kern_bootargs": "Kernel Boot Flags",
     "usage_stats_report": "Usage Stats Report",
+    "general": "General",
     "timestamp": "Stats Pulled",
     "thermal_pressure": "Thermal Pressure",
     "backlights": "Backlights",
@@ -60,5 +61,8 @@
     "usr": "User",
     "mem": "Memory Amount",
     "proc": "Process",
+    "super_cluster": "Super Cluster",
+    "performance_cluster": "Performance Cluster",
+    "efficiency_cluster": "Efficiency Cluster",
     "path": "Process Path"
 }

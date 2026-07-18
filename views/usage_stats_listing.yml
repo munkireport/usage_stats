@@ -1,6 +1,7 @@
 i18n_title: usage_stats.usage_stats_report
 js_link: module/usage_stats/js/usage_stats
 not_null_column: usage_stats.thermal_pressure
+row_class: usage_stats.cpu_idle
 table:
   - column: machine.computer_name
     i18n_header: listing.computername
@@ -31,9 +32,9 @@ table:
   - {i18n_header: usage_stats.freq_ratio, column: usage_stats.freq_ratio, formatter: format_usage_stats_ratio}
   - {i18n_header: usage_stats.gpu_freq_hz_short, column: usage_stats.gpu_freq_hz, formatter: format_usage_stats_mhz}
   - {i18n_header: usage_stats.gpu_freq_ratio, column: usage_stats.gpu_freq_ratio, formatter: format_usage_stats_ratio}
-  - {i18n_header: usage_stats.gpu_busy, column: usage_stats.gpu_busy, formatter: format_usage_stats_ratio}
-  - {i18n_header: usage_stats.cpu_idle, column: usage_stats.cpu_idle}
-  - {i18n_header: usage_stats.cpu_sys, column: usage_stats.cpu_sys}
-  - {i18n_header: usage_stats.cpu_user, column: usage_stats.cpu_user}
+  - {i18n_header: usage_stats.gpu_busy, column: usage_stats.gpu_busy, formatter: format_usage_stats_gpu_busy}
+  - {i18n_header: usage_stats.cpu, column: usage_stats.cpu_idle, formatter: format_usage_stats_cpu_usage_from_idle}
+  - {i18n_header: usage_stats.cpu_sys, column: usage_stats.cpu_sys, formatter: format_usage_stats_cpu_usage}
+  - {i18n_header: usage_stats.cpu_user, column: usage_stats.cpu_user, formatter: format_usage_stats_cpu_usage}
   - {i18n_header: usage_stats.load_avg, column: usage_stats.load_avg}
   - {i18n_header: usage_stats.kern_bootargs, column: usage_stats.kern_bootargs}
