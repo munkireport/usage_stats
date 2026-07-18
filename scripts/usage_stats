@@ -3,6 +3,77 @@
 
 import os, sys, plistlib, subprocess, platform, json, math, re
 
+def run_sysctl_value(key):
+    try:
+        cmd = ['/usr/sbin/sysctl', '-n', key]
+        proc = subprocess.Popen(cmd, shell=False, bufsize=-1,
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, _ = proc.communicate()
+        if proc.returncode != 0:
+            return None
+        value = output.decode("utf-8", errors="ignore").strip()
+        return value if value else None
+    except:
+        return None
+
+def get_perflevel_cluster_names():
+    """Map hw.perflevel index to display cluster type."""
+    perflevel_clusters = {}
+
+    nperflevels = run_sysctl_value('hw.nperflevels')
+    if not nperflevels:
+        return perflevel_clusters
+
+    try:
+        perflevel_count = int(nperflevels)
+    except:
+        return perflevel_clusters
+
+    for level_idx in range(perflevel_count):
+        level_name = run_sysctl_value('hw.perflevel' + str(level_idx) + '.name')
+        if not level_name:
+            continue
+
+        level_name_lc = level_name.lower()
+        if 'super' in level_name_lc:
+            perflevel_clusters[level_idx] = 'S-Cluster'
+        elif 'perform' in level_name_lc:
+            perflevel_clusters[level_idx] = 'P-Cluster'
+        elif 'efficien' in level_name_lc:
+            perflevel_clusters[level_idx] = 'E-Cluster'
+
+    return perflevel_clusters
+
+def normalize_cluster_name(raw_name, use_perflevel_index, perflevel_clusters):
+    """Normalize powermetrics cluster names across Apple Silicon generations."""
+    if not raw_name:
+        return 'P-Cluster'
+
+    prefix = raw_name[0].upper()
+    idx_match = re.match(r'^[A-Za-z](\d+)', raw_name)
+
+    # On newer Apple Silicon, resolve ambiguous P*/M* naming by perflevel.
+    if use_perflevel_index and idx_match:
+        try:
+            perf_idx = int(idx_match.group(1))
+            if perf_idx in perflevel_clusters:
+                return perflevel_clusters[perf_idx]
+        except:
+            pass
+
+    if prefix == 'E':
+        return 'E-Cluster'
+
+    if prefix == 'S':
+        return 'S-Cluster'
+
+    # M* clusters are treated as middle/performance cores.
+    if prefix == 'M':
+        return 'P-Cluster'
+
+    # Default: P* and unknown prefixes are treated as performance.
+    return 'P-Cluster'
+
 def get_usage_metrics():
     cmd = ['/usr/bin/powermetrics', '--show-initial-usage', ' -s', 'network,disk', '-f', 'plist', '-n', '0']
 
@@ -23,23 +94,22 @@ def get_usage_metrics():
     plist_build = plist_build + '</dict></plist>'
 
     try:
-        plist = plistlib.readPlistFromString(plist_build)
-    except AttributeError as e:
-        try:
-            plist = plistlib.loads(plist_build.encode())
-        except:
-            plist = {}
 
-    cmd = ['/usr/bin/powermetrics', '-s', 'cpu_power,gpu_power,thermal,battery', '-n', '1', '-f', 'plist']
+        plist = plistlib.loads(plist_build.encode())
+    except:
+        plist = {}
+
+    cmd = ['/usr/bin/powermetrics', '-s', 'cpu_power,gpu_power,thermal,battery', '-n', '1', '-i', '1000', '-f', 'plist']
     proc = subprocess.Popen(cmd, shell=False, bufsize=-1,
                         stdin=subprocess.PIPE,
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = proc.communicate()
 
     try:
-        plist.update(plistlib.readPlistFromString(output.rstrip(' \t\r\n\0')))
-    except AttributeError as e:
+
         plist.update(plistlib.loads(output.decode().rstrip(' \t\r\n\0').replace("&","and").encode()))
+    except:
+        pass
 
     return plist
 
@@ -189,9 +259,10 @@ def get_as_backlight():
       output=output.decode("utf-8", errors="ignore").split("Unable to dump a property list.")[0].encode()
 
     try:
-        plist = plistlib.readPlistFromString(output)
-    except AttributeError as e:
+
         plist = plistlib.loads(output)
+    except Exception:
+        return {}
 
     result = {}
 
@@ -232,20 +303,39 @@ def get_as_backlight():
 def process_clusters(cpu_clusters):
     # Lovely lifted from https://github.com/tlkh/asitop
 
-    e_core = []
-    p_core = []
     cpu_metric_dict = {}
+    perflevel_clusters = get_perflevel_cluster_names()
+
+    # Verified patterns:
+    # - M1/M3 era: explicit E/S tier prefixes may coexist with P0/P1 cluster names.
+    # - M5 variants: sometimes only P0/P1 are present, where perflevel names disambiguate.
+    # Therefore, use perflevel index mapping only when names are ambiguous-only
+    # (P/M with numeric suffixes and no explicit E/S tier prefixes in the sample).
+    prefixes = []
+    has_numeric_suffix = False
+    for cluster in cpu_clusters:
+        cluster_name = cluster.get("name", "")
+        if not cluster_name:
+            continue
+        prefixes.append(cluster_name[0].upper())
+        if re.match(r'^[A-Za-z]\d+', cluster_name):
+            has_numeric_suffix = True
+
+    has_explicit_tier_prefixes = any(prefix in ('E', 'S') for prefix in prefixes)
+    has_only_ambiguous_prefixes = len(prefixes) > 0 and all(prefix in ('P', 'M') for prefix in prefixes)
+    use_perflevel_index = bool(perflevel_clusters) and (not has_explicit_tier_prefixes) and has_only_ambiguous_prefixes and has_numeric_suffix
 
     for cluster in cpu_clusters:
-        name = cluster["name"]
+        normalized_name = normalize_cluster_name(
+            cluster.get("name", ""),
+            use_perflevel_index,
+            perflevel_clusters
+        )
         # cpu_metric_dict[name+"_freq_Mhz"] = int(cluster["freq_hz"]/(1e6))
         # cpu_metric_dict[name+"_active"] = int((1 - cluster["idle_ratio"])*100)
         for cpu in cluster["cpus"]:
-            name = 'E-Cluster' if name[0] == 'E' else 'P-Cluster'
-            core = e_core if name[0] == 'E' else p_core
-            core.append(cpu["cpu"])
-            cpu_metric_dict[name + str(cpu["cpu"]) + "_freq_Mhz"] = int(cpu["freq_hz"] / (1e6))
-            cpu_metric_dict[name + str(cpu["cpu"]) + "_active"] = int((1 - cpu["idle_ratio"]) * 100)
+            cpu_metric_dict[normalized_name + str(cpu["cpu"]) + "_freq_Mhz"] = int(cpu["freq_hz"] / (1e6))
+            cpu_metric_dict[normalized_name + str(cpu["cpu"]) + "_active"] = int((1 - cpu["idle_ratio"]) * 100)
     
     # cpu_metric_dict["e_core"] = e_core
     # cpu_metric_dict["p_core"] = p_core
@@ -390,13 +480,11 @@ def main():
             result.update(get_as_backlight())
 
     # Write results to cache
+
     cachedir = '%s/cache' % os.path.dirname(os.path.realpath(__file__))
     output_plist = os.path.join(cachedir, 'usage_stats.plist')
-    try:
-        plistlib.writePlist(result, output_plist)
-    except:
-        with open(output_plist, 'wb') as fp:
-            plistlib.dump(result, fp, fmt=plistlib.FMT_XML)
+    with open(output_plist, 'wb') as fp:
+        plistlib.dump(result, fp, fmt=plistlib.FMT_XML)
 
 if __name__ == "__main__":
     main()
