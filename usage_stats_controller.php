@@ -35,7 +35,7 @@ class Usage_stats_controller extends Module_controller
     public function get_scroll_widget($column)
     {
         // Remove non-column name characters
-        $column = preg_replace("/[^A-Za-z0-9_\-]]/", '', $column);
+        $column = preg_replace("/[^A-Za-z0-9_\-]/", '', $column);
 
         $sql = "SELECT COUNT(CASE WHEN ".$column." <> '' AND ".$column." IS NOT NULL THEN 1 END) AS count, ".$column." 
                 FROM usage_stats
